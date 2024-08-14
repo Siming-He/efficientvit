@@ -10,10 +10,12 @@ from efficientvit.apps.trainer.run_config import Scheduler
 from efficientvit.models.nn.ops import IdentityLayer, ResidualBlock
 from efficientvit.models.utils import build_kwargs_from_config
 
+from typing import Any, Dict, Optional
+
 __all__ = ["apply_drop_func"]
 
 
-def apply_drop_func(network: nn.Module, drop_config: dict[str, any] or None) -> None:
+def apply_drop_func(network: nn.Module, drop_config: Optional[Dict[str, Any]]) -> None:
     if drop_config is None:
         return
 
@@ -57,9 +59,9 @@ class DropPathResidualBlock(ResidualBlock):
     def __init__(
         self,
         main: nn.Module,
-        shortcut: nn.Module or None,
+        shortcut: Optional[nn.Module],
         post_act=None,
-        pre_norm: nn.Module or None = None,
+        pre_norm: Optional[nn.Module] = None,
         ######################################
         drop_prob: float = 0,
         scheduled=True,

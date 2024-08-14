@@ -18,6 +18,8 @@ from efficientvit.models.nn import (
 )
 from efficientvit.models.utils import build_kwargs_from_config
 
+from typing import List, Optional, Union
+
 __all__ = [
     "EfficientViTSeg",
     "efficientvit_seg_b0",
@@ -32,15 +34,15 @@ __all__ = [
 class SegHead(DAGBlock):
     def __init__(
         self,
-        fid_list: list[str],
-        in_channel_list: list[int],
-        stride_list: list[int],
+        fid_list: List[str],
+        in_channel_list: List[int],
+        stride_list: List[int],
         head_stride: int,
         head_width: int,
         head_depth: int,
         expand_ratio: float,
         middle_op: str,
-        final_expand: float or None,
+        final_expand: Optional[float],
         n_classes: int,
         dropout=0,
         norm="bn2d",
@@ -107,7 +109,7 @@ class SegHead(DAGBlock):
 
 
 class EfficientViTSeg(nn.Module):
-    def __init__(self, backbone: EfficientViTBackbone or EfficientViTLargeBackbone, head: SegHead) -> None:
+    def __init__(self, backbone: Union[EfficientViTBackbone, EfficientViTLargeBackbone], head: SegHead) -> None:
         super().__init__()
         self.backbone = backbone
         self.head = head

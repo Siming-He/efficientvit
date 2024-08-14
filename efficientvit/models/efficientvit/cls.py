@@ -9,6 +9,8 @@ from efficientvit.models.efficientvit.backbone import EfficientViTBackbone, Effi
 from efficientvit.models.nn import ConvLayer, LinearLayer, OpSequential
 from efficientvit.models.utils import build_kwargs_from_config
 
+from typing import Dict, List
+
 __all__ = [
     "EfficientViTCls",
     ######################
@@ -27,7 +29,7 @@ class ClsHead(OpSequential):
     def __init__(
         self,
         in_channels: int,
-        width_list: list[int],
+        width_list: List[int],
         n_classes=1000,
         dropout=0.0,
         norm="bn2d",
@@ -44,7 +46,7 @@ class ClsHead(OpSequential):
 
         self.fid = fid
 
-    def forward(self, feed_dict: dict[str, torch.Tensor]) -> torch.Tensor:
+    def forward(self, feed_dict: Dict[str, torch.Tensor]) -> torch.Tensor:
         x = feed_dict[self.fid]
         return OpSequential.forward(self, x)
 

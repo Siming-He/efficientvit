@@ -8,6 +8,8 @@ from inspect import signature
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from typing import List, Optional, Union, Any, Tuple, Dict, Callable
+
 
 __all__ = [
     "is_parallel",
@@ -27,20 +29,19 @@ def get_device(model: nn.Module) -> torch.device:
     return model.parameters().__next__().device
 
 
-def get_same_padding(kernel_size: int or tuple[int, ...]) -> int or tuple[int, ...]:
+def get_same_padding(kernel_size: Union[int, Tuple[int, ...]]) -> Union[int, Tuple[int, ...]]:
     if isinstance(kernel_size, tuple):
         return tuple([get_same_padding(ks) for ks in kernel_size])
     else:
-        assert kernel_size % 2 > 0, "kernel size should be odd number"
+        assert kernel_size % 2 > 0, "kernel size should be an odd number"
         return kernel_size // 2
-
 
 def resize(
     x: torch.Tensor,
-    size: any or None = None,
-    scale_factor: list[float] or None = None,
+    size: Union[Any, None] = None,
+    scale_factor: Optional[List[float]] = None,
     mode: str = "bicubic",
-    align_corners: bool or None = False,
+    align_corners: Optional[bool] = False,
 ) -> torch.Tensor:
     if mode in {"bilinear", "bicubic"}:
         return F.interpolate(
@@ -55,8 +56,7 @@ def resize(
     else:
         raise NotImplementedError(f"resize(mode={mode}) not implemented.")
 
-
-def build_kwargs_from_config(config: dict, target_func: callable) -> dict[str, any]:
+def build_kwargs_from_config(config: Dict[str, Any], target_func: Callable) -> Dict[str, Any]:
     valid_keys = list(signature(target_func).parameters)
     kwargs = {}
     for key in config:
@@ -64,8 +64,7 @@ def build_kwargs_from_config(config: dict, target_func: callable) -> dict[str, a
             kwargs[key] = config[key]
     return kwargs
 
-
-def load_state_dict_from_file(file: str, only_state_dict=True) -> dict[str, torch.Tensor]:
+def load_state_dict_from_file(file: str, only_state_dict=True) -> Dict[str, torch.Tensor]:
     file = os.path.realpath(os.path.expanduser(file))
     checkpoint = torch.load(file, map_location="cpu")
     if only_state_dict and "state_dict" in checkpoint:

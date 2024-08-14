@@ -11,6 +11,8 @@ from efficientvit.models.nn.act import build_act
 from efficientvit.models.nn.norm import build_norm
 from efficientvit.models.utils import get_same_padding, list_sum, resize, val2list, val2tuple
 
+from typing import Union, Tuple, List, Optional, Dict
+
 __all__ = [
     "ConvLayer",
     "UpSampleLayer",
@@ -81,7 +83,7 @@ class UpSampleLayer(nn.Module):
     def __init__(
         self,
         mode="bicubic",
-        size: int or tuple[int, int] or list[int] or None = None,
+        size: Optional[Union[int, Tuple[int, int], List[int]]] = None,
         factor=2,
         align_corners=False,
     ):
@@ -339,14 +341,14 @@ class LiteMLA(nn.Module):
         self,
         in_channels: int,
         out_channels: int,
-        heads: int or None = None,
+        heads: Optional[int] = None,
         heads_ratio: float = 1.0,
         dim=8,
         use_bias=False,
         norm=(None, "bn2d"),
         act_func=(None, None),
         kernel_func="relu",
-        scales: tuple[int, ...] = (5,),
+        scales: Tuple[int, ...] = (5,),
         eps=1.0e-15,
     ):
         super(LiteMLA, self).__init__()
@@ -532,10 +534,10 @@ class EfficientViTBlock(nn.Module):
 class ResidualBlock(nn.Module):
     def __init__(
         self,
-        main: nn.Module or None,
-        shortcut: nn.Module or None,
+        main: Optional[nn.Module],
+        shortcut: Optional[nn.Module],
         post_act=None,
-        pre_norm: nn.Module or None = None,
+        pre_norm: Optional[nn.Module] = None,
     ):
         super(ResidualBlock, self).__init__()
 
@@ -565,11 +567,11 @@ class ResidualBlock(nn.Module):
 class DAGBlock(nn.Module):
     def __init__(
         self,
-        inputs: dict[str, nn.Module],
+        inputs: Dict[str, nn.Module],
         merge: str,
-        post_input: nn.Module or None,
+        post_input: Optional[nn.Module],
         middle: nn.Module,
-        outputs: dict[str, nn.Module],
+        outputs: Dict[str, nn.Module],
     ):
         super(DAGBlock, self).__init__()
 
@@ -583,7 +585,7 @@ class DAGBlock(nn.Module):
         self.output_keys = list(outputs.keys())
         self.output_ops = nn.ModuleList(list(outputs.values()))
 
-    def forward(self, feature_dict: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
+    def forward(self, feature_dict: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         feat = [op(feature_dict[key]) for key, op in zip(self.input_keys, self.input_ops)]
         if self.merge == "add":
             feat = list_sum(feat)
@@ -600,7 +602,7 @@ class DAGBlock(nn.Module):
 
 
 class OpSequential(nn.Module):
-    def __init__(self, op_list: list[nn.Module or None]):
+    def __init__(self, op_list: List[Optional[nn.Module]]):
         super(OpSequential, self).__init__()
         valid_op_list = []
         for op in op_list:
